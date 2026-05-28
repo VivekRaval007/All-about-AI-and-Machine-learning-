@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scikit-learn ML Notes — Complete Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --card: #1a1e2a;
+    --border: #252a38;
+    --accent: #5e9bff;
+    --accent2: #a78bfa;
+    --accent3: #34d399;
+    --accent4: #fb923c;
+    --accent5: #f472b6;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --code-bg: #0a0c12;
+    --highlight: rgba(94,155,255,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; top:0; left:0; width:260px; height:100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 24px 0;
+    z-index: 100;
+  }
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .sidebar-logo h1 { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
+  .sidebar-logo p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .nav-section { padding: 8px 20px 4px; font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; }
+  .nav-link {
+    display: block; padding: 6px 20px; font-size: 12.5px; color: var(--muted);
+    text-decoration: none; border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav-link:hover, .nav-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--highlight); }
+
+  /* MAIN */
+  .main { margin-left: 260px; padding: 48px 56px; max-width: 1100px; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 72px; }
+  .section-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 32px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .section-title { font-size: 22px; font-weight: 700; }
+  .section-sub { font-size: 13px; color: var(--muted); margin-top: 1px; }
+
+  /* CARDS */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-bottom: 20px;
+  }
+  .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .card p, .card li { font-size: 13.5px; color: #c4cdd9; line-height: 1.8; }
+  .card ul { padding-left: 18px; }
+  .card ul li { margin-bottom: 4px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* CODE */
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px; overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+    line-height: 1.7; margin: 14px 0;
+  }
+  .kw { color: #a78bfa; } /* keywords */
+  .fn { color: #5e9bff; } /* functions/classes */
+  .str { color: #34d399; } /* strings */
+  .cm { color: #4a5568; font-style: italic; } /* comments */
+  .num { color: #fb923c; } /* numbers */
+  .imp { color: #f472b6; } /* imports */
+
+  /* FORMULA */
+  .formula {
+    background: var(--code-bg); border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 12px 0;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent2);
+  }
+
+  /* TAGS */
+  .tag {
+    display: inline-block; padding: 2px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; margin: 2px;
+  }
+  .tag-blue { background: rgba(94,155,255,0.15); color: var(--accent); }
+  .tag-purple { background: rgba(167,139,250,0.15); color: var(--accent2); }
+  .tag-green { background: rgba(52,211,153,0.15); color: var(--accent3); }
+  .tag-orange { background: rgba(251,146,60,0.15); color: var(--accent4); }
+  .tag-pink { background: rgba(244,114,182,0.15); color: var(--accent5); }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 10px; padding: 14px 18px; margin: 14px 0;
+    font-size: 13px; display: flex; gap: 10px; align-items: flex-start;
+  }
+  .callout-tip { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.2); }
+  .callout-warn { background: rgba(251,146,60,0.08); border: 1px solid rgba(251,146,60,0.2); }
+  .callout-info { background: rgba(94,155,255,0.08); border: 1px solid rgba(94,155,255,0.2); }
+  .callout-icon { font-size: 16px; flex-shrink:0; margin-top:1px; }
+
+  /* TABLE */
+  table { width:100%; border-collapse: collapse; font-size: 13px; margin: 14px 0; }
+  th { background: var(--code-bg); color: var(--accent); padding: 10px 14px; text-align:left; font-weight:600; border-bottom: 1px solid var(--border); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: #c4cdd9; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--highlight); }
+
+  /* STEP LIST */
+  .steps { counter-reset: step; padding-left:0; list-style:none; }
+  .steps li {
+    counter-increment: step; position: relative;
+    padding: 10px 14px 10px 52px; margin-bottom: 8px;
+    background: var(--card); border-radius: 8px; font-size: 13.5px; color: #c4cdd9;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    width: 24px; height: 24px; border-radius: 6px;
+    background: rgba(94,155,255,0.15); color: var(--accent);
+    font-weight: 700; font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* COMPARE */
+  .compare-row { display:flex; gap:16px; margin-bottom:16px; }
+  .compare-row .card { flex:1; margin-bottom:0; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, rgba(94,155,255,0.1), rgba(167,139,250,0.08));
+    border: 1px solid rgba(94,155,255,0.2); border-radius: 16px;
+    padding: 36px; margin-bottom: 56px; text-align:center;
+  }
+  .hero h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 14px; max-width:600px; margin: 0 auto; }
+  .hero-badges { margin-top: 20px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius:3px; }
+
+  @media(max-width:900px){
+    .sidebar{display:none;}
+    .main{margin-left:0; padding:24px 20px;}
+    .grid-2,.grid-3{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>ML Notes</h1>
+    <p>Scikit-learn · Complete Guide</p>
+  </div>
+  <span class="nav-section">Foundations</span>
+  <a href="#numpy" class="nav-link">01 · NumPy</a>
+  <a href="#pandas" class="nav-link">02 · Pandas</a>
+  <a href="#preprocessing" class="nav-link">03 · Preprocessing</a>
+  <a href="#eda" class="nav-link">04 · EDA</a>
+  <span class="nav-section">Supervised</span>
+  <a href="#linreg" class="nav-link">05 · Linear Regression</a>
+  <a href="#metrics-reg" class="nav-link">06 · Regression Metrics</a>
+  <a href="#logreg" class="nav-link">07 · Logistic Regression</a>
+  <a href="#knn" class="nav-link">08 · KNN</a>
+  <a href="#dtree" class="nav-link">09 · Decision Tree</a>
+  <a href="#rf" class="nav-link">10 · Random Forest</a>
+  <a href="#svm" class="nav-link">11 · SVM</a>
+  <a href="#nb" class="nav-link">12 · Naive Bayes</a>
+  <a href="#metrics-cls" class="nav-link">13 · Classification Metrics</a>
+  <span class="nav-section">Unsupervised</span>
+  <a href="#clustering" class="nav-link">14 · Clustering / KMeans</a>
+  <a href="#pca" class="nav-link">15 · PCA</a>
+  <span class="nav-section">Advanced</span>
+  <a href="#pipeline" class="nav-link">16 · Pipeline</a>
+  <a href="#cv" class="nav-link">17 · Cross Validation</a>
+  <a href="#tuning" class="nav-link">18 · Hyperparameter Tuning</a>
+  <a href="#saving" class="nav-link">19 · Model Saving</a>
+  <a href="#workflow" class="nav-link">20 · ML Workflow</a>
+</nav>
+
+<main class="main">
+
+  <div class="hero">
+    <h1>Scikit-learn <span>ML Notes</span></h1>
+    <p>A complete, detailed guide from NumPy basics to model deployment — structured for learning and quick reference.</p>
+    <div class="hero-badges">
+      <span class="tag tag-blue">NumPy</span>
+      <span class="tag tag-purple">Pandas</span>
+      <span class="tag tag-green">Scikit-learn</span>
+      <span class="tag tag-orange">Matplotlib</span>
+      <span class="tag tag-pink">Seaborn</span>
+    </div>
+  </div>
+
+  <!-- ══════════════ 1. NUMPY ══════════════ -->
+  <section class="section" id="numpy">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(94,155,255,0.15);color:var(--accent)">01</div>
+      <div>
+        <div class="section-title">NumPy</div>
+        <div class="section-sub">Fast numerical computing — the backbone of ML data handling</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <span>NumPy arrays are stored in contiguous memory blocks, making operations up to <strong>50x faster</strong> than Python lists. Every ML library (pandas, sklearn, tensorflow) uses NumPy under the hood.</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>📦 Why NumPy over Python Lists?</h3>
+        <ul>
+          <li>No Python loops needed — vectorized ops</li>
+          <li>Fixed data type = faster computation</li>
+          <li>Broadcasting (operations on different shapes)</li>
+          <li>Built-in math: mean, std, dot product, etc.</li>
+          <li>Basis for Pandas DataFrames and sklearn inputs</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>🔑 Key Attributes of ndarray</h3>
+        <ul>
+          <li><code>arr.shape</code> → dimensions (rows, cols)</li>
+          <li><code>arr.ndim</code> → number of dimensions</li>
+          <li><code>arr.dtype</code> → data type (int32, float64…)</li>
+          <li><code>arr.size</code> → total number of elements</li>
+          <li><code>arr.T</code> → transpose</li>
+        </ul>
+      </div>
+    </div>
+
+    <pre><span class="imp">import numpy as np</span>
+
+<span class="cm"># ── Creating arrays ──────────────────────────</span>
+arr1d = np.array([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>])
+arr2d = np.array([[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>], [<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>]])  <span class="cm"># 2 rows × 3 cols</span>
+zeros  = np.zeros((<span class="num">3</span>,<span class="num">4</span>))           <span class="cm"># 3×4 matrix of 0s</span>
+ones   = np.ones((<span class="num">2</span>,<span class="num">2</span>))            <span class="cm"># 2×2 matrix of 1s</span>
+eye    = np.eye(<span class="num">3</span>)                 <span class="cm"># 3×3 identity matrix</span>
+rng    = np.arange(<span class="num">0</span>, <span class="num">10</span>, <span class="num">2</span>)       <span class="cm"># [0, 2, 4, 6, 8]</span>
+lin    = np.linspace(<span class="num">0</span>, <span class="num">1</span>, <span class="num">5</span>)      <span class="cm"># 5 evenly spaced between 0-1</span>
+
+<span class="cm"># ── Random ───────────────────────────────────</span>
+np.random.seed(<span class="num">42</span>)               <span class="cm"># reproducibility</span>
+rand  = np.random.rand(<span class="num">3</span>, <span class="num">3</span>)     <span class="cm"># uniform [0,1)</span>
+randn = np.random.randn(<span class="num">100</span>)     <span class="cm"># standard normal distribution</span>
+randi = np.random.randint(<span class="num">1</span>, <span class="num">10</span>, (<span class="num">4</span>,<span class="num">4</span>))  <span class="cm"># integers between 1-10</span>
+
+<span class="cm"># ── Reshaping ────────────────────────────────</span>
+a = np.arange(<span class="num">12</span>)
+b = a.reshape(<span class="num">3</span>, <span class="num">4</span>)   <span class="cm"># 3×4 — total elements must match</span>
+c = b.flatten()         <span class="cm"># back to 1D</span>
+d = a.reshape(<span class="num">-1</span>, <span class="num">1</span>)  <span class="cm"># column vector (sklearn often needs this)</span>
+
+<span class="cm"># ── Math operations (vectorized) ─────────────</span>
+x = np.array([<span class="num">1.0</span>, <span class="num">2.0</span>, <span class="num">3.0</span>])
+print(x.mean(), x.std(), x.sum(), x.min(), x.max())
+print(np.<span class="fn">dot</span>(x, x))         <span class="cm"># dot product = 14.0</span>
+print(np.<span class="fn">sqrt</span>(x))           <span class="cm"># element-wise square root</span>
+print(np.<span class="fn">log</span>(x))            <span class="cm"># natural log</span>
+
+<span class="cm"># ── Indexing & slicing ───────────────────────</span>
+arr = np.arange(<span class="num">10</span>)
+print(arr[<span class="num">2</span>:<span class="num">6</span>])              <span class="cm"># [2, 3, 4, 5]</span>
+print(arr[arr > <span class="num">5</span>])          <span class="cm"># boolean mask → [6,7,8,9]</span>
+
+m = np.array([[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>],[<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>]])
+print(m[<span class="num">0</span>, :])               <span class="cm"># first row: [1,2,3]</span>
+print(m[:, <span class="num">1</span>])               <span class="cm"># second column: [2,5]</span>
+
+<span class="cm"># ── Broadcasting ─────────────────────────────</span>
+A = np.ones((<span class="num">3</span>, <span class="num">3</span>))
+v = np.array([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>])
+print(A + v)  <span class="cm"># v added to each row of A — no loops!</span></pre>
+
+  </section>
+
+  <!-- ══════════════ 2. PANDAS ══════════════ -->
+  <section class="section" id="pandas">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(167,139,250,0.15);color:var(--accent2)">02</div>
+      <div>
+        <div class="section-title">Pandas</div>
+        <div class="section-sub">Data analysis and manipulation — your main tool for real-world datasets</div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <span>A <strong>DataFrame</strong> is a 2D labeled table (like an Excel sheet). A <strong>Series</strong> is a single column. Every ML project starts here — load, explore, and clean your data with Pandas before feeding it to sklearn.</span>
+    </div>
+
+    <pre><span class="imp">import pandas as pd</span>
+<span class="imp">import numpy as np</span>
+
+<span class="cm"># ── Create DataFrame ─────────────────────────</span>
+data = {
+    <span class="str">'Name'</span>  : [<span class="str">'Alice'</span>, <span class="str">'Bob'</span>, <span class="str">'Charlie'</span>, <span class="str">'Diana'</span>],
+    <span class="str">'Age'</span>   : [<span class="num">24</span>, <span class="num">30</span>, <span class="num">22</span>, <span class="num">28</span>],
+    <span class="str">'Salary'</span>: [<span class="num">50000</span>, <span class="num">80000</span>, <span class="num">45000</span>, <span class="num">70000</span>],
+    <span class="str">'Gender'</span>: [<span class="str">'F'</span>, <span class="str">'M'</span>, <span class="str">'M'</span>, <span class="str">'F'</span>]
+}
+df = pd.<span class="fn">DataFrame</span>(data)
+
+<span class="cm"># ── Read / write files ───────────────────────</span>
+df = pd.<span class="fn">read_csv</span>(<span class="str">'data.csv'</span>)
+df = pd.<span class="fn">read_excel</span>(<span class="str">'data.xlsx'</span>)
+df.<span class="fn">to_csv</span>(<span class="str">'output.csv'</span>, index=<span class="kw">False</span>)
+
+<span class="cm"># ── First look ───────────────────────────────</span>
+df.<span class="fn">head</span>(<span class="num">5</span>)          <span class="cm"># first 5 rows</span>
+df.<span class="fn">tail</span>(<span class="num">3</span>)          <span class="cm"># last 3 rows</span>
+df.<span class="fn">info</span>()           <span class="cm"># dtypes + non-null counts</span>
+df.<span class="fn">describe</span>()       <span class="cm"># stats: mean, std, min, 25%, 50%, 75%, max</span>
+df.shape            <span class="cm"># (rows, cols)</span>
+df.columns          <span class="cm"># column names</span>
+df.dtypes           <span class="cm"># data type per column</span>
+df.<span class="fn">nunique</span>()        <span class="cm"># unique value count per column</span>
+df.<span class="fn">value_counts</span>()   <span class="cm"># frequency of each unique value</span>
+
+<span class="cm"># ── Selecting data ───────────────────────────</span>
+df[<span class="str">'Age'</span>]                      <span class="cm"># single column (Series)</span>
+df[[<span class="str">'Age'</span>, <span class="str">'Salary'</span>]]           <span class="cm"># multiple columns (DataFrame)</span>
+df.<span class="fn">iloc</span>[<span class="num">0</span>]                     <span class="cm"># first row by position</span>
+df.<span class="fn">iloc</span>[<span class="num">0</span>:<span class="num">3</span>, <span class="num">1</span>:<span class="num">3</span>]              <span class="cm"># rows 0-2, cols 1-2</span>
+df.<span class="fn">loc</span>[df[<span class="str">'Age'</span>] > <span class="num">25</span>]         <span class="cm"># filter by condition</span>
+
+<span class="cm"># ── Multiple conditions ──────────────────────</span>
+df[(df[<span class="str">'Age'</span>] > <span class="num">20</span>) & (df[<span class="str">'Salary'</span>] > <span class="num">50000</span>)]
+
+<span class="cm"># ── Add / drop columns ───────────────────────</span>
+df[<span class="str">'Tax'</span>] = df[<span class="str">'Salary'</span>] * <span class="num">0.2</span>   <span class="cm"># new column</span>
+df.<span class="fn">drop</span>(<span class="str">'Tax'</span>, axis=<span class="num">1</span>, inplace=<span class="kw">True</span>)
+
+<span class="cm"># ── GroupBy ──────────────────────────────────</span>
+df.<span class="fn">groupby</span>(<span class="str">'Gender'</span>)[<span class="str">'Salary'</span>].<span class="fn">mean</span>()
+df.<span class="fn">groupby</span>(<span class="str">'Gender'</span>).<span class="fn">agg</span>({<span class="str">'Salary'</span>: [<span class="str">'mean'</span>,<span class="str">'max'</span>], <span class="str">'Age'</span>: <span class="str">'min'</span>})
+
+<span class="cm"># ── Sorting ──────────────────────────────────</span>
+df.<span class="fn">sort_values</span>(<span class="str">'Salary'</span>, ascending=<span class="kw">False</span>)
+
+<span class="cm"># ── Apply custom function ────────────────────</span>
+df[<span class="str">'AgeGroup'</span>] = df[<span class="str">'Age'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> x: <span class="str">'Young'</span> <span class="kw">if</span> x < <span class="num">25</span> <span class="kw">else</span> <span class="str">'Senior'</span>)</pre>
+
+  </section>
+
+  <!-- ══════════════ 3. PREPROCESSING ══════════════ -->
+  <section class="section" id="preprocessing">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(52,211,153,0.15);color:var(--accent3)">03</div>
+      <div>
+        <div class="section-title">Data Preprocessing</div>
+        <div class="section-sub">Garbage in → garbage out. Clean, encode, and scale your data</div>
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <span><strong>Golden Rule:</strong> Always fit scalers and encoders on training data only. Then use <code>transform()</code> on test data. Fitting on test data causes <strong>data leakage</strong> — your model cheats by seeing test statistics.</span>
+    </div>
+
+    <div class="card"><h3>🔍 Missing Value Strategies</h3>
+      <table>
+        <tr><th>Strategy</th><th>When to use</th><th>Code</th></tr>
+        <tr><td>Mean imputation</td><td>Numeric, no outliers</td><td><code>fillna(df['col'].mean())</code></td></tr>
+        <tr><td>Median imputation</td><td>Numeric, with outliers</td><td><code>fillna(df['col'].median())</code></td></tr>
+        <tr><td>Mode imputation</td><td>Categorical columns</td><td><code>fillna(df['col'].mode()[0])</code></td></tr>
+        <tr><td>Drop rows</td><td>Very few missing (&lt;5%)</td><td><code>df.dropna()</code></td></tr>
+        <tr><td>Drop column</td><td>Column has &gt;50% missing</td><td><code>df.drop('col', axis=1)</code></td></tr>
+        <tr><td>KNN / model-based</td><td>Complex relationships</td><td>sklearn KNNImputer</td></tr>
+      </table>
+    </div>
+
+    <pre><span class="imp">from sklearn.impute import</span> <span class="fn">SimpleImputer</span>, <span class="fn">KNNImputer</span>
+
+<span class="cm"># ── Check missing values ─────────────────────</span>
+df.<span class="fn">isnull</span>().<span class="fn">sum</span>()
+df.<span class="fn">isnull</span>().<span class="fn">mean</span>() * <span class="num">100</span>   <span class="cm"># % missing per column</span>
+
+<span class="cm"># ── Pandas fill ──────────────────────────────</span>
+df[<span class="str">'Age'</span>]      = df[<span class="str">'Age'</span>].<span class="fn">fillna</span>(df[<span class="str">'Age'</span>].<span class="fn">median</span>())
+df[<span class="str">'Embarked'</span>] = df[<span class="str">'Embarked'</span>].<span class="fn">fillna</span>(df[<span class="str">'Embarked'</span>].<span class="fn">mode</span>()[<span class="num">0</span>])
+
+<span class="cm"># ── Sklearn imputer (better for pipelines) ───</span>
+imputer = <span class="fn">SimpleImputer</span>(strategy=<span class="str">'median'</span>)   <span class="cm"># mean/median/most_frequent/constant</span>
+X_imp   = imputer.<span class="fn">fit_transform</span>(X)
+
+<span class="cm"># ── KNN imputer: uses similar rows to fill ───</span>
+knn_imp = <span class="fn">KNNImputer</span>(n_neighbors=<span class="num">5</span>)
+X_imp   = knn_imp.<span class="fn">fit_transform</span>(X)</pre>
+
+    <div class="grid-3" style="margin-top:20px">
+      <div class="card">
+        <h3>🏷️ Label Encoding</h3>
+        <p>Converts category to integer. Use for <strong>binary or ordinal</strong> features only. Risk: model may assume order (0 &lt; 1 &lt; 2).</p>
+        <pre style="margin-top:10px"><span class="imp">from sklearn.preprocessing import</span> <span class="fn">LabelEncoder</span>
+le = <span class="fn">LabelEncoder</span>()
+df[<span class="str">'Gender'</span>] = le.<span class="fn">fit_transform</span>(df[<span class="str">'Gender'</span>])
+<span class="cm"># Male→0, Female→1</span></pre>
+      </div>
+      <div class="card">
+        <h3>🔢 One-Hot Encoding</h3>
+        <p>Creates binary column per category. Use for <strong>nominal</strong> features with no order. Beware: adds many columns for high-cardinality.</p>
+        <pre style="margin-top:10px"><span class="cm"># Pandas way (simple)</span>
+df = pd.<span class="fn">get_dummies</span>(df, columns=[<span class="str">'City'</span>])
+
+<span class="cm"># Sklearn way (for pipelines)</span>
+<span class="imp">from sklearn.preprocessing import</span> <span class="fn">OneHotEncoder</span>
+ohe = <span class="fn">OneHotEncoder</span>(drop=<span class="str">'first'</span>)</pre>
+      </div>
+      <div class="card">
+        <h3>📊 Ordinal Encoding</h3>
+        <p>Use when categories have a <strong>meaningful order</strong>: Small &lt; Medium &lt; Large. You define the order explicitly.</p>
+        <pre style="margin-top:10px"><span class="imp">from sklearn.preprocessing import</span> <span class="fn">OrdinalEncoder</span>
+oe = <span class="fn">OrdinalEncoder</span>(
+  categories=[[<span class="str">'Low'</span>,<span class="str">'Med'</span>,<span class="str">'High'</span>]]
+)
+df[<span class="str">'Size'</span>] = oe.<span class="fn">fit_transform</span>(df[[<span class="str">'Size'</span>]])</pre>
+      </div>
+    </div>
+
+    <div class="compare-row" style="margin-top:20px">
+      <div class="card">
+        <h3>📐 StandardScaler (Z-score)</h3>
+        <div class="formula">z = (x − μ) / σ</div>
+        <p>Mean becomes 0, std becomes 1. Best for algorithms that assume Gaussian distribution: Linear Regression, Logistic Regression, SVM, PCA.</p>
+        <pre><span class="imp">from sklearn.preprocessing import</span> <span class="fn">StandardScaler</span>
+scaler = <span class="fn">StandardScaler</span>()
+X_train_s = scaler.<span class="fn">fit_transform</span>(X_train)
+X_test_s  = scaler.<span class="fn">transform</span>(X_test)  <span class="cm"># NOT fit_transform!</span></pre>
+      </div>
+      <div class="card">
+        <h3>📏 MinMaxScaler (Normalization)</h3>
+        <div class="formula">x' = (x − min) / (max − min)</div>
+        <p>Values become 0–1. Best for Neural Networks, KNN, image data. Sensitive to outliers (they push other values toward 0).</p>
+        <pre><span class="imp">from sklearn.preprocessing import</span> <span class="fn">MinMaxScaler</span>
+scaler = <span class="fn">MinMaxScaler</span>()
+X_train_s = scaler.<span class="fn">fit_transform</span>(X_train)
+X_test_s  = scaler.<span class="fn">transform</span>(X_test)</pre>
+      </div>
+    </div>
+
+    <pre><span class="cm"># ── Train-Test Split ─────────────────────────</span>
+<span class="imp">from sklearn.model_selection import</span> <span class="fn">train_test_split</span>
+
+X = df.<span class="fn">drop</span>(<span class="str">'target'</span>, axis=<span class="num">1</span>)
+y = df[<span class="str">'target'</span>]
+
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(
+    X, y,
+    test_size=<span class="num">0.2</span>,      <span class="cm"># 20% test, 80% train</span>
+    random_state=<span class="num">42</span>,   <span class="cm"># reproducibility</span>
+    stratify=y          <span class="cm"># preserves class ratio (for classification)</span>
+)</pre>
+  </section>
+
+  <!-- ══════════════ 4. EDA ══════════════ -->
+  <section class="section" id="eda">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(251,146,60,0.15);color:var(--accent4)">04</div>
+      <div>
+        <div class="section-title">Exploratory Data Analysis (EDA)</div>
+        <div class="section-sub">Understand your data before modeling — statistics + visualization</div>
+      </div>
+    </div>
+    <pre><span class="imp">import matplotlib.pyplot as plt</span>
+<span class="imp">import seaborn as sns</span>
+
+<span class="cm"># ── Distribution ─────────────────────────────</span>
+plt.<span class="fn">hist</span>(df[<span class="str">'Age'</span>], bins=<span class="num">20</span>, color=<span class="str">'steelblue'</span>, edgecolor=<span class="str">'white'</span>)
+plt.<span class="fn">title</span>(<span class="str">'Age Distribution'</span>); plt.<span class="fn">show</span>()
+
+sns.<span class="fn">histplot</span>(df[<span class="str">'Age'</span>], kde=<span class="kw">True</span>)  <span class="cm"># adds KDE curve</span>
+
+<span class="cm"># ── Category counts ──────────────────────────</span>
+sns.<span class="fn">countplot</span>(x=<span class="str">'Survived'</span>, hue=<span class="str">'Sex'</span>, data=df)
+
+<span class="cm"># ── Outlier detection ────────────────────────</span>
+sns.<span class="fn">boxplot</span>(y=<span class="str">'Salary'</span>, data=df)
+<span class="cm"># Whiskers = Q1−1.5×IQR and Q3+1.5×IQR; dots outside = outliers</span>
+
+<span class="cm"># ── Correlation heatmap ──────────────────────</span>
+plt.<span class="fn">figure</span>(figsize=(<span class="num">10</span>,<span class="num">8</span>))
+sns.<span class="fn">heatmap</span>(df.<span class="fn">corr</span>(), annot=<span class="kw">True</span>, fmt=<span class="str">'.2f'</span>,
+           cmap=<span class="str">'coolwarm'</span>, vmin=-<span class="num">1</span>, vmax=<span class="num">1</span>)
+
+<span class="cm"># ── Feature relationships ────────────────────</span>
+sns.<span class="fn">pairplot</span>(df[[<span class="str">'Age'</span>,<span class="str">'Salary'</span>,<span class="str">'Score'</span>]], hue=<span class="str">'Gender'</span>)
+
+<span class="cm"># ── Scatter + regression line ────────────────</span>
+sns.<span class="fn">regplot</span>(x=<span class="str">'Age'</span>, y=<span class="str">'Salary'</span>, data=df)
+
+<span class="cm"># ── Violin (distribution + box combined) ─────</span>
+sns.<span class="fn">violinplot</span>(x=<span class="str">'Gender'</span>, y=<span class="str">'Salary'</span>, data=df)
+
+<span class="cm"># ── Handling outliers (IQR method) ───────────</span>
+Q1 = df[<span class="str">'Salary'</span>].<span class="fn">quantile</span>(<span class="num">0.25</span>)
+Q3 = df[<span class="str">'Salary'</span>].<span class="fn">quantile</span>(<span class="num">0.75</span>)
+IQR = Q3 - Q1
+lower = Q1 - <span class="num">1.5</span> * IQR
+upper = Q3 + <span class="num">1.5</span> * IQR
+df_clean = df[(df[<span class="str">'Salary'</span>] >= lower) & (df[<span class="str">'Salary'</span>] <= upper)]</pre>
+  </section>
+
+  <!-- ══════════════ 5. LINEAR REGRESSION ══════════════ -->
+  <section class="section" id="linreg">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(94,155,255,0.15);color:var(--accent)">05</div>
+      <div>
+        <div class="section-title">Linear Regression</div>
+        <div class="section-sub">Predict continuous values by fitting a straight line</div>
+      </div>
+    </div>
+
+    <div class="formula">y = β₀ + β₁x₁ + β₂x₂ + … + βₙxₙ + ε</div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>📖 How It Works</h3>
+        <ul>
+          <li>Finds the best-fit line minimizing <strong>Sum of Squared Errors (SSE)</strong></li>
+          <li>Uses <strong>Ordinary Least Squares (OLS)</strong> or Gradient Descent</li>
+          <li>β coefficients: how much y changes per unit of each x</li>
+          <li>β₀ (intercept): value of y when all x = 0</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>⚠️ Assumptions</h3>
+        <ul>
+          <li>Linear relationship between X and y</li>
+          <li>Residuals are normally distributed</li>
+          <li>No multicollinearity (features not correlated with each other)</li>
+          <li>Homoscedasticity: constant variance of errors</li>
+        </ul>
+      </div>
+    </div>
+
+    <pre><span class="imp">from sklearn.linear_model import</span> <span class="fn">LinearRegression</span>
+<span class="imp">from sklearn.preprocessing import</span> <span class="fn">PolynomialFeatures</span>
+
+<span class="cm"># ── Simple Linear Regression ─────────────────</span>
+model = <span class="fn">LinearRegression</span>()
+model.<span class="fn">fit</span>(X_train, y_train)
+pred  = model.<span class="fn">predict</span>(X_test)
+
+print(<span class="str">"Intercept:"</span>, model.intercept_)
+print(<span class="str">"Coefficients:"</span>, model.coef_)
+<span class="cm"># coef_[i] = effect of feature i on y (positive = increases, negative = decreases)</span>
+
+<span class="cm"># ── Polynomial Regression (curved fit) ───────</span>
+poly    = <span class="fn">PolynomialFeatures</span>(degree=<span class="num">2</span>)  <span class="cm"># adds x², x₁x₂, etc.</span>
+X_poly  = poly.<span class="fn">fit_transform</span>(X_train)
+model_p = <span class="fn">LinearRegression</span>()
+model_p.<span class="fn">fit</span>(X_poly, y_train)</pre>
+  </section>
+
+  <!-- ══════════════ 6. REGRESSION METRICS ══════════════ -->
+  <section class="section" id="metrics-reg">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(52,211,153,0.15);color:var(--accent3)">06</div>
+      <div>
+        <div class="section-title">Regression Metrics</div>
+        <div class="section-sub">How good is your regression model?</div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th>Metric</th><th>Formula</th><th>Meaning</th><th>Range</th></tr>
+      <tr><td>MAE</td><td>mean(|y - ŷ|)</td><td>Average absolute error — easy to interpret, robust to outliers</td><td>0 → ∞ (lower better)</td></tr>
+      <tr><td>MSE</td><td>mean((y - ŷ)²)</td><td>Penalizes large errors heavily — sensitive to outliers</td><td>0 → ∞ (lower better)</td></tr>
+      <tr><td>RMSE</td><td>√MSE</td><td>Same unit as y — most commonly reported</td><td>0 → ∞ (lower better)</td></tr>
+      <tr><td>R² Score</td><td>1 − SS_res/SS_tot</td><td>% variance explained by model. 1=perfect, 0=no better than mean</td><td>0 → 1 (higher better)</td></tr>
+    </table>
+
+    <pre><span class="imp">from sklearn.metrics import</span> <span class="fn">mean_absolute_error</span>, <span class="fn">mean_squared_error</span>, <span class="fn">r2_score</span>
+<span class="imp">import numpy as np</span>
+
+mae  = <span class="fn">mean_absolute_error</span>(y_test, pred)
+mse  = <span class="fn">mean_squared_error</span>(y_test, pred)
+rmse = np.<span class="fn">sqrt</span>(mse)
+r2   = <span class="fn">r2_score</span>(y_test, pred)
+
+print(<span class="fn">f"MAE={mae:.2f}  MSE={mse:.2f}  RMSE={rmse:.2f}  R²={r2:.3f}"</span>)</pre>
+  </section>
+
+  <!-- ══════════════ 7. LOGISTIC REGRESSION ══════════════ -->
+  <section class="section" id="logreg">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(167,139,250,0.15);color:var(--accent2)">07</div>
+      <div>
+        <div class="section-title">Logistic Regression</div>
+        <div class="section-sub">Classification using probabilities and the sigmoid function</div>
+      </div>
+    </div>
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <span>Despite the name, Logistic Regression is a <strong>classification</strong> algorithm. It outputs a probability (0–1), then classifies using a threshold (default 0.5).</span>
+    </div>
+    <div class="formula">P(y=1) = 1 / (1 + e^−z)  where  z = β₀ + β₁x₁ + … + βₙxₙ</div>
+    <pre><span class="imp">from sklearn.linear_model import</span> <span class="fn">LogisticRegression</span>
+
+model = <span class="fn">LogisticRegression</span>(
+    C=<span class="num">1.0</span>,              <span class="cm"># regularization (smaller C = more regularization)</span>
+    solver=<span class="str">'lbfgs'</span>,    <span class="cm"># optimizer: lbfgs, liblinear, saga</span>
+    max_iter=<span class="num">200</span>,      <span class="cm"># increase if convergence warning</span>
+    multi_class=<span class="str">'auto'</span> <span class="cm"># handles multi-class automatically</span>
+)
+model.<span class="fn">fit</span>(X_train, y_train)
+
+pred       = model.<span class="fn">predict</span>(X_test)          <span class="cm"># class labels [0,1]</span>
+pred_proba = model.<span class="fn">predict_proba</span>(X_test)   <span class="cm"># probability [0.3, 0.7]</span>
+<span class="cm"># Change threshold: pred = (pred_proba[:,1] >= 0.4).astype(int)</span></pre>
+  </section>
+
+  <!-- ══════════════ 8. KNN ══════════════ -->
+  <section class="section" id="knn">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(251,146,60,0.15);color:var(--accent4)">08</div>
+      <div>
+        <div class="section-title">K-Nearest Neighbors (KNN)</div>
+        <div class="section-sub">Classify/predict using the K most similar training examples</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>🧭 How It Works</h3>
+        <ul>
+          <li>No training phase — it's a <strong>lazy learner</strong></li>
+          <li>For each test point, find K nearest training points</li>
+          <li>Classification: <strong>majority vote</strong> of K neighbors</li>
+          <li>Regression: <strong>average</strong> of K neighbors' values</li>
+          <li>Distance: usually Euclidean — so <strong>scale your features!</strong></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>🎯 Choosing K</h3>
+        <ul>
+          <li><strong>K=1</strong>: overfitting, too sensitive to noise</li>
+          <li><strong>Large K</strong>: underfitting, too smooth</li>
+          <li>Best practice: try odd K values (1,3,5,7…) and use elbow method</li>
+          <li>Rule of thumb: K ≈ √(n_samples)</li>
+        </ul>
+      </div>
+    </div>
+    <pre><span class="imp">from sklearn.neighbors import</span> <span class="fn">KNeighborsClassifier</span>
+
+<span class="cm"># ── Find best K ──────────────────────────────</span>
+error_rates = []
+<span class="kw">for</span> k <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">20</span>):
+    knn = <span class="fn">KNeighborsClassifier</span>(n_neighbors=k)
+    knn.<span class="fn">fit</span>(X_train, y_train)
+    error_rates.<span class="fn">append</span>(<span class="num">1</span> - knn.<span class="fn">score</span>(X_test, y_test))
+<span class="cm"># plot error_rates and pick the elbow</span>
+
+model = <span class="fn">KNeighborsClassifier</span>(
+    n_neighbors=<span class="num">5</span>,
+    metric=<span class="str">'euclidean'</span>,   <span class="cm"># or 'manhattan', 'minkowski'</span>
+    weights=<span class="str">'distance'</span>    <span class="cm"># closer neighbors get more vote weight</span>
+)
+model.<span class="fn">fit</span>(X_train, y_train)</pre>
+  </section>
+
+  <!-- ══════════════ 9. DECISION TREE ══════════════ -->
+  <section class="section" id="dtree">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(244,114,182,0.15);color:var(--accent5)">09</div>
+      <div>
+        <div class="section-title">Decision Tree</div>
+        <div class="section-sub">Flowchart-like model — splits data based on feature thresholds</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>📐 Key Concepts</h3>
+        <ul>
+          <li><strong>Gini Impurity:</strong> how mixed the classes are in a node (0 = pure)</li>
+          <li><strong>Entropy / Information Gain:</strong> how much info a split provides</li>
+          <li><strong>max_depth:</strong> limits tree size → prevents overfitting</li>
+          <li><strong>min_samples_split:</strong> minimum samples needed to split a node</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>✅ Pros / ❌ Cons</h3>
+        <ul>
+          <li>✅ No feature scaling needed</li>
+          <li>✅ Handles mixed data types</li>
+          <li>✅ Highly interpretable — you can visualize the tree</li>
+          <li>❌ Prone to overfitting on training data</li>
+          <li>❌ Unstable — small data changes = very different tree</li>
+        </ul>
+      </div>
+    </div>
+    <pre><span class="imp">from sklearn.tree import</span> <span class="fn">DecisionTreeClassifier</span>, <span class="fn">plot_tree</span>
+
+model = <span class="fn">DecisionTreeClassifier</span>(
+    criterion=<span class="str">'gini'</span>,      <span class="cm"># or 'entropy'</span>
+    max_depth=<span class="num">4</span>,           <span class="cm"># limit depth to prevent overfitting</span>
+    min_samples_split=<span class="num">10</span>,  <span class="cm"># need 10+ samples to split</span>
+    random_state=<span class="num">42</span>
+)
+model.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="cm"># ── Visualize the tree ───────────────────────</span>
+plt.<span class="fn">figure</span>(figsize=(<span class="num">20</span>,<span class="num">10</span>))
+<span class="fn">plot_tree</span>(model, feature_names=X.columns,
+          class_names=[<span class="str">'0'</span>,<span class="str">'1'</span>], filled=<span class="kw">True</span>)
+
+<span class="cm"># ── Feature importance ───────────────────────</span>
+importance = pd.<span class="fn">Series</span>(model.feature_importances_, index=X.columns)
+importance.<span class="fn">sort_values</span>().<span class="fn">plot</span>(kind=<span class="str">'barh'</span>)</pre>
+  </section>
+
+  <!-- ══════════════ 10. RANDOM FOREST ══════════════ -->
+  <section class="section" id="rf">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(94,155,255,0.15);color:var(--accent)">10</div>
+      <div>
+        <div class="section-title">Random Forest</div>
+        <div class="section-sub">Ensemble of decision trees — powerful, accurate, and robust</div>
+      </div>
+    </div>
+    <div class="callout callout-tip">
+      <span class="callout-icon">💡</span>
+      <span>Random Forest uses two sources of randomness: <strong>Bootstrap sampling</strong> (each tree trained on a random subset of rows) and <strong>Feature subsampling</strong> (each split considers only √n features). This prevents trees from correlating, making the ensemble much better than any single tree.</span>
+    </div>
+    <pre><span class="imp">from sklearn.ensemble import</span> <span class="fn">RandomForestClassifier</span>, <span class="fn">RandomForestRegressor</span>
+
+model = <span class="fn">RandomForestClassifier</span>(
+    n_estimators=<span class="num">100</span>,       <span class="cm"># number of trees (more = better, but slower)</span>
+    max_depth=<span class="num">None</span>,         <span class="cm"># let trees grow fully (bagging handles overfitting)</span>
+    max_features=<span class="str">'sqrt'</span>,   <span class="cm"># features per split: sqrt(n) for classification</span>
+    min_samples_split=<span class="num">2</span>,
+    n_jobs=-<span class="num">1</span>,              <span class="cm"># use all CPU cores</span>
+    random_state=<span class="num">42</span>
+)
+model.<span class="fn">fit</span>(X_train, y_train)
+pred = model.<span class="fn">predict</span>(X_test)
+
+<span class="cm"># ── Feature importance ── (very useful for EDA!)</span>
+feat_imp = pd.<span class="fn">Series</span>(model.feature_importances_, index=X.columns)
+feat_imp.<span class="fn">nlargest</span>(<span class="num">10</span>).<span class="fn">plot</span>(kind=<span class="str">'barh'</span>)  <span class="cm"># top 10 features</span></pre>
+  </section>
+
+  <!-- ══════════════ 11. SVM ══════════════ -->
+  <section class="section" id="svm">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(52,211,153,0.15);color:var(--accent3)">11</div>
+      <div>
+        <div class="section-title">Support Vector Machine (SVM)</div>
+        <div class="section-sub">Find the hyperplane that maximizes the margin between classes</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>🔑 Key Concepts</h3>
+        <ul>
+          <li><strong>Hyperplane:</strong> the decision boundary (line in 2D, plane in 3D)</li>
+          <li><strong>Margin:</strong> distance between hyperplane and nearest points. SVM maximizes this</li>
+          <li><strong>Support Vectors:</strong> the data points closest to the hyperplane — they define it</li>
+          <li><strong>Kernel Trick:</strong> maps data to higher dimensions for non-linear separation</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>🧪 Kernel Types</h3>
+        <ul>
+          <li><strong>linear:</strong> for linearly separable data</li>
+          <li><strong>rbf (Gaussian):</strong> general-purpose, most common default</li>
+          <li><strong>poly:</strong> polynomial decision boundary</li>
+          <li><strong>C parameter:</strong> higher C = harder margin (less tolerance for misclassification)</li>
+        </ul>
+      </div>
+    </div>
+    <pre><span class="imp">from sklearn.svm import</span> <span class="fn">SVC</span>, <span class="fn">SVR</span>
+
+model = <span class="fn">SVC</span>(
+    kernel=<span class="str">'rbf'</span>,      <span class="cm"># linear, rbf, poly, sigmoid</span>
+    C=<span class="num">1.0</span>,            <span class="cm"># regularization: high=less regularization</span>
+    gamma=<span class="str">'scale'</span>,    <span class="cm"># rbf bandwidth: 'scale', 'auto', or float</span>
+    probability=<span class="kw">True</span>  <span class="cm"># enable predict_proba() — slower</span>
+)
+model.<span class="fn">fit</span>(X_train, y_train)
+<span class="cm"># Always scale features before SVM — very sensitive to magnitude</span></pre>
+  </section>
+
+  <!-- ══════════════ 12. NAIVE BAYES ══════════════ -->
+  <section class="section" id="nb">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(167,139,250,0.15);color:var(--accent2)">12</div>
+      <div>
+        <div class="section-title">Naive Bayes</div>
+        <div class="section-sub">Probabilistic classifier based on Bayes' theorem — fast and simple</div>
+      </div>
+    </div>
+    <div class="formula">P(class | features) ∝ P(class) × ∏ P(featureᵢ | class)</div>
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <span>The <strong>"Naive"</strong> part assumes all features are conditionally independent given the class. This is rarely true in practice, but NB still performs surprisingly well — especially for text data.</span>
+    </div>
+    <pre><span class="imp">from sklearn.naive_bayes import</span> <span class="fn">GaussianNB</span>, <span class="fn">MultinomialNB</span>, <span class="fn">BernoulliNB</span>
+
+<span class="cm"># GaussianNB  → continuous features (assumes Gaussian distribution)</span>
+<span class="cm"># MultinomialNB → word counts / text classification (non-negative integers)</span>
+<span class="cm"># BernoulliNB → binary features (word present/absent)</span>
+
+model = <span class="fn">GaussianNB</span>()          <span class="cm"># for numeric data</span>
+model = <span class="fn">MultinomialNB</span>()       <span class="cm"># for text data (TF or CountVectorizer)</span>
+model.<span class="fn">fit</span>(X_train, y_train)</pre>
+  </section>
+
+  <!-- ══════════════ 13. CLASSIFICATION METRICS ══════════════ -->
+  <section class="section" id="metrics-cls">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(251,146,60,0.15);color:var(--accent4)">13</div>
+      <div>
+        <div class="section-title">Classification Metrics</div>
+        <div class="section-sub">Accuracy isn't enough — understand what your model really gets right</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3>🔲 Confusion Matrix</h3>
+      <table>
+        <tr><th></th><th>Predicted: Positive</th><th>Predicted: Negative</th></tr>
+        <tr><td><strong>Actual: Positive</strong></td><td style="color:var(--accent3)">TP (True Positive)</td><td style="color:var(--accent4)">FN (False Negative) — missed it</td></tr>
+        <tr><td><strong>Actual: Negative</strong></td><td style="color:var(--accent5)">FP (False Positive) — false alarm</td><td style="color:var(--accent)">TN (True Negative)</td></tr>
+      </table>
+    </div>
+
+    <table>
+      <tr><th>Metric</th><th>Formula</th><th>When to use</th></tr>
+      <tr><td>Accuracy</td><td>(TP+TN) / Total</td><td>Balanced classes. Misleading for imbalanced data</td></tr>
+      <tr><td>Precision</td><td>TP / (TP+FP)</td><td>When false positives are costly (spam filter)</td></tr>
+      <tr><td>Recall</td><td>TP / (TP+FN)</td><td>When false negatives are costly (cancer detection)</td></tr>
+      <tr><td>F1 Score</td><td>2×(P×R)/(P+R)</td><td>Imbalanced classes, need balance of P and R</td></tr>
+      <tr><td>ROC-AUC</td><td>Area under ROC curve</td><td>Overall classifier performance across thresholds</td></tr>
+    </table>
+
+    <pre><span class="imp">from sklearn.metrics import</span> (
+    <span class="fn">accuracy_score</span>, <span class="fn">precision_score</span>, <span class="fn">recall_score</span>,
+    <span class="fn">f1_score</span>, <span class="fn">confusion_matrix</span>, <span class="fn">classification_report</span>,
+    <span class="fn">roc_auc_score</span>, <span class="fn">roc_curve</span>
+)
+
+print(<span class="fn">classification_report</span>(y_test, pred))  <span class="cm"># all metrics at once</span>
+
+cm = <span class="fn">confusion_matrix</span>(y_test, pred)
+sns.<span class="fn">heatmap</span>(cm, annot=<span class="kw">True</span>, fmt=<span class="str">'d'</span>, cmap=<span class="str">'Blues'</span>)
+
+<span class="cm"># ROC Curve</span>
+fpr, tpr, thresholds = <span class="fn">roc_curve</span>(y_test, model.<span class="fn">predict_proba</span>(X_test)[:,<span class="num">1</span>])
+auc = <span class="fn">roc_auc_score</span>(y_test, model.<span class="fn">predict_proba</span>(X_test)[:,<span class="num">1</span>])</pre>
+  </section>
+
+  <!-- ══════════════ 14. CLUSTERING ══════════════ -->
+  <section class="section" id="clustering">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(52,211,153,0.15);color:var(--accent3)">14</div>
+      <div>
+        <div class="section-title">Clustering & KMeans</div>
+        <div class="section-sub">Unsupervised learning — find hidden structure in unlabeled data</div>
+      </div>
+    </div>
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <span>KMeans minimizes <strong>inertia</strong> (within-cluster sum of squares). Use the <strong>Elbow Method</strong>: plot inertia vs K and find where the curve bends — that's your optimal K.</span>
+    </div>
+    <pre><span class="imp">from sklearn.cluster import</span> <span class="fn">KMeans</span>
+<span class="imp">from sklearn.metrics import</span> <span class="fn">silhouette_score</span>
+
+<span class="cm"># ── Elbow method to find best K ──────────────</span>
+inertias = []
+<span class="kw">for</span> k <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">11</span>):
+    km = <span class="fn">KMeans</span>(n_clusters=k, random_state=<span class="num">42</span>, n_init=<span class="num">10</span>)
+    km.<span class="fn">fit</span>(X)
+    inertias.<span class="fn">append</span>(km.inertia_)
+
+plt.<span class="fn">plot</span>(<span class="fn">range</span>(<span class="num">1</span>,<span class="num">11</span>), inertias, <span class="str">'bo-'</span>)
+plt.<span class="fn">xlabel</span>(<span class="str">'K'</span>); plt.<span class="fn">ylabel</span>(<span class="str">'Inertia'</span>)
+
+<span class="cm"># ── Fit KMeans ───────────────────────────────</span>
+model = <span class="fn">KMeans</span>(n_clusters=<span class="num">3</span>, random_state=<span class="num">42</span>, n_init=<span class="num">10</span>)
+model.<span class="fn">fit</span>(X)
+labels   = model.labels_          <span class="cm"># cluster assignment per sample</span>
+centers  = model.cluster_centers_  <span class="cm"># centroid coordinates</span>
+
+<span class="cm"># ── Silhouette score: how well separated clusters are ─</span>
+sil = <span class="fn">silhouette_score</span>(X, labels)   <span class="cm"># 1 = perfect, -1 = wrong clusters</span></pre>
+  </section>
+
+  <!-- ══════════════ 15. PCA ══════════════ -->
+  <section class="section" id="pca">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(244,114,182,0.15);color:var(--accent5)">15</div>
+      <div>
+        <div class="section-title">PCA — Principal Component Analysis</div>
+        <div class="section-sub">Reduce dimensionality while retaining maximum variance</div>
+      </div>
+    </div>
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <span>Always <strong>StandardScale before PCA</strong>. PCA is variance-based — large-scale features dominate the components if not scaled. Also: PCA components are <strong>not interpretable</strong> (they're linear combinations of original features).</span>
+    </div>
+    <pre><span class="imp">from sklearn.decomposition import</span> <span class="fn">PCA</span>
+<span class="imp">from sklearn.preprocessing import</span> <span class="fn">StandardScaler</span>
+
+<span class="cm"># ── Step 1: Scale ────────────────────────────</span>
+X_scaled = <span class="fn">StandardScaler</span>().<span class="fn">fit_transform</span>(X)
+
+<span class="cm"># ── Step 2: Find how many components to keep ─</span>
+pca_full = <span class="fn">PCA</span>()
+pca_full.<span class="fn">fit</span>(X_scaled)
+explained = pca_full.explained_variance_ratio_.cumsum()
+<span class="cm"># Find n where explained variance >= 95%</span>
+n = (explained >= <span class="num">0.95</span>).argmax() + <span class="num">1</span>
+
+<span class="cm"># ── Step 3: Reduce dimensions ────────────────</span>
+pca = <span class="fn">PCA</span>(n_components=n)
+X_reduced = pca.<span class="fn">fit_transform</span>(X_scaled)
+print(<span class="fn">f"Reduced {X.shape[1]} features → {n} components"</span>)
+
+<span class="cm"># ── Step 4: Visualize (2D) ───────────────────</span>
+pca2d = <span class="fn">PCA</span>(n_components=<span class="num">2</span>)
+X_2d  = pca2d.<span class="fn">fit_transform</span>(X_scaled)
+plt.<span class="fn">scatter</span>(X_2d[:,<span class="num">0</span>], X_2d[:,<span class="num">1</span>], c=y, cmap=<span class="str">'viridis'</span>)</pre>
+  </section>
+
+  <!-- ══════════════ 16. PIPELINE ══════════════ -->
+  <section class="section" id="pipeline">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(94,155,255,0.15);color:var(--accent)">16</div>
+      <div>
+        <div class="section-title">Pipeline</div>
+        <div class="section-sub">Chain preprocessing and modeling steps — prevents leakage, simplifies code</div>
+      </div>
+    </div>
+    <div class="callout callout-tip">
+      <span class="callout-icon">💡</span>
+      <span>Using Pipeline is the <strong>professional way</strong> to build ML models. It ensures preprocessing is applied correctly in cross-validation, prevents data leakage, and makes deployment simple (one <code>.pkl</code> file handles everything).</span>
+    </div>
+    <pre><span class="imp">from sklearn.pipeline import</span> <span class="fn">Pipeline</span>
+<span class="imp">from sklearn.compose import</span> <span class="fn">ColumnTransformer</span>
+<span class="imp">from sklearn.preprocessing import</span> <span class="fn">StandardScaler</span>, <span class="fn">OneHotEncoder</span>
+<span class="imp">from sklearn.impute import</span> <span class="fn">SimpleImputer</span>
+<span class="imp">from sklearn.ensemble import</span> <span class="fn">RandomForestClassifier</span>
+
+<span class="cm"># ── Define feature groups ────────────────────</span>
+num_features = [<span class="str">'Age'</span>, <span class="str">'Salary'</span>]
+cat_features  = [<span class="str">'Gender'</span>, <span class="str">'City'</span>]
+
+<span class="cm"># ── Numeric pipeline ─────────────────────────</span>
+num_pipe = <span class="fn">Pipeline</span>([
+    (<span class="str">'impute'</span>, <span class="fn">SimpleImputer</span>(strategy=<span class="str">'median'</span>)),
+    (<span class="str">'scale'</span>,  <span class="fn">StandardScaler</span>())
+])
+
+<span class="cm"># ── Categorical pipeline ──────────────────────</span>
+cat_pipe = <span class="fn">Pipeline</span>([
+    (<span class="str">'impute'</span>, <span class="fn">SimpleImputer</span>(strategy=<span class="str">'most_frequent'</span>)),
+    (<span class="str">'encode'</span>, <span class="fn">OneHotEncoder</span>(handle_unknown=<span class="str">'ignore'</span>))
+])
+
+<span class="cm"># ── Combine with ColumnTransformer ────────────</span>
+preprocessor = <span class="fn">ColumnTransformer</span>([
+    (<span class="str">'num'</span>, num_pipe, num_features),
+    (<span class="str">'cat'</span>, cat_pipe, cat_features)
+])
+
+<span class="cm"># ── Full pipeline ─────────────────────────────</span>
+full_pipe = <span class="fn">Pipeline</span>([
+    (<span class="str">'prep'</span>,  preprocessor),
+    (<span class="str">'model'</span>, <span class="fn">RandomForestClassifier</span>(n_estimators=<span class="num">100</span>))
+])
+
+full_pipe.<span class="fn">fit</span>(X_train, y_train)
+pred = full_pipe.<span class="fn">predict</span>(X_test)</pre>
+  </section>
+
+  <!-- ══════════════ 17. CROSS VALIDATION ══════════════ -->
+  <section class="section" id="cv">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(52,211,153,0.15);color:var(--accent3)">17</div>
+      <div>
+        <div class="section-title">Cross Validation</div>
+        <div class="section-sub">Reliable model evaluation using multiple train-test splits</div>
+      </div>
+    </div>
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <span>A single train-test split can be <strong>lucky or unlucky</strong> depending on which samples end up in each set. Cross-validation gives you a much more reliable estimate of true model performance by averaging across K different splits.</span>
+    </div>
+    <pre><span class="imp">from sklearn.model_selection import</span> (
+    <span class="fn">cross_val_score</span>, <span class="fn">KFold</span>, <span class="fn">StratifiedKFold</span>, <span class="fn">cross_validate</span>
+)
+<span class="imp">import numpy as np</span>
+
+<span class="cm"># ── Basic K-Fold ─────────────────────────────</span>
+scores = <span class="fn">cross_val_score</span>(model, X, y,
+                          cv=<span class="num">5</span>,           <span class="cm"># 5 folds</span>
+                          scoring=<span class="str">'accuracy'</span>)
+print(<span class="fn">f"CV Accuracy: {scores.mean():.3f} ± {scores.std():.3f}"</span>)
+
+<span class="cm"># ── Stratified K-Fold (recommended for classification)</span>
+skf = <span class="fn">StratifiedKFold</span>(n_splits=<span class="num">5</span>, shuffle=<span class="kw">True</span>, random_state=<span class="num">42</span>)
+scores = <span class="fn">cross_val_score</span>(model, X, y, cv=skf)
+
+<span class="cm"># ── Get multiple metrics at once ─────────────</span>
+results = <span class="fn">cross_validate</span>(model, X, y, cv=<span class="num">5</span>,
+    scoring=[<span class="str">'accuracy'</span>, <span class="str">'f1'</span>, <span class="str">'roc_auc'</span>],
+    return_train_score=<span class="kw">True</span>)
+<span class="cm"># results['test_accuracy'], results['train_accuracy']  (detect overfitting!)</span></pre>
+  </section>
+
+  <!-- ══════════════ 18. HYPERPARAMETER TUNING ══════════════ -->
+  <section class="section" id="tuning">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(167,139,250,0.15);color:var(--accent2)">18</div>
+      <div>
+        <div class="section-title">Hyperparameter Tuning</div>
+        <div class="section-sub">Systematically find the best model settings</div>
+      </div>
+    </div>
+    <div class="compare-row">
+      <div class="card">
+        <h3>🔲 GridSearchCV</h3>
+        <p>Tries <strong>every combination</strong> of parameters. Thorough but slow. Use when parameter space is small.</p>
+      </div>
+      <div class="card">
+        <h3>🎲 RandomizedSearchCV</h3>
+        <p>Tries <strong>n_iter random combinations</strong>. Much faster. Often finds near-optimal results with 20-50 iterations.</p>
+      </div>
+    </div>
+    <pre><span class="imp">from sklearn.model_selection import</span> <span class="fn">GridSearchCV</span>, <span class="fn">RandomizedSearchCV</span>
+<span class="imp">from scipy.stats import</span> randint, uniform
+
+<span class="cm"># ── GridSearchCV ─────────────────────────────</span>
+param_grid = {
+    <span class="str">'n_estimators'</span>: [<span class="num">50</span>, <span class="num">100</span>, <span class="num">200</span>],
+    <span class="str">'max_depth'</span>    : [<span class="num">None</span>, <span class="num">5</span>, <span class="num">10</span>],
+    <span class="str">'min_samples_split'</span>: [<span class="num">2</span>, <span class="num">5</span>]
+}  <span class="cm"># 3×3×2 = 18 combinations × 5 folds = 90 fits</span>
+
+gs = <span class="fn">GridSearchCV</span>(
+    <span class="fn">RandomForestClassifier</span>(), param_grid,
+    cv=<span class="num">5</span>, scoring=<span class="str">'f1'</span>, n_jobs=-<span class="num">1</span>, verbose=<span class="num">1</span>
+)
+gs.<span class="fn">fit</span>(X_train, y_train)
+print(gs.best_params_, gs.best_score_)
+
+<span class="cm"># ── RandomizedSearchCV (faster) ──────────────</span>
+param_dist = {
+    <span class="str">'n_estimators'</span>    : <span class="fn">randint</span>(<span class="num">50</span>, <span class="num">500</span>),
+    <span class="str">'max_depth'</span>       : [<span class="kw">None</span>, <span class="num">5</span>, <span class="num">10</span>, <span class="num">20</span>],
+    <span class="str">'min_samples_split'</span>: <span class="fn">randint</span>(<span class="num">2</span>, <span class="num">20</span>),
+    <span class="str">'max_features'</span>    : <span class="fn">uniform</span>(<span class="num">0.3</span>, <span class="num">0.7</span>)
+}
+rs = <span class="fn">RandomizedSearchCV</span>(
+    <span class="fn">RandomForestClassifier</span>(), param_dist,
+    n_iter=<span class="num">50</span>, cv=<span class="num">5</span>, scoring=<span class="str">'f1'</span>,
+    n_jobs=-<span class="num">1</span>, random_state=<span class="num">42</span>
+)
+rs.<span class="fn">fit</span>(X_train, y_train)</pre>
+  </section>
+
+  <!-- ══════════════ 19. MODEL SAVING ══════════════ -->
+  <section class="section" id="saving">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(251,146,60,0.15);color:var(--accent4)">19</div>
+      <div>
+        <div class="section-title">Model Saving & Loading</div>
+        <div class="section-sub">Persist trained models for deployment and reuse</div>
+      </div>
+    </div>
+    <pre><span class="imp">import pickle</span>
+<span class="imp">import joblib</span>  <span class="cm"># preferred for sklearn — handles numpy arrays better</span>
+
+<span class="cm"># ── Save with joblib (recommended) ───────────</span>
+joblib.<span class="fn">dump</span>(model, <span class="str">'model.joblib'</span>)
+loaded = joblib.<span class="fn">load</span>(<span class="str">'model.joblib'</span>)
+
+<span class="cm"># ── Save with pickle ─────────────────────────</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'model.pkl'</span>, <span class="str">'wb'</span>) <span class="kw">as</span> f:
+    pickle.<span class="fn">dump</span>(model, f)
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'model.pkl'</span>, <span class="str">'rb'</span>) <span class="kw">as</span> f:
+    loaded = pickle.<span class="fn">load</span>(f)
+
+<span class="cm"># ── Save a full pipeline (scaler + model) ────</span>
+joblib.<span class="fn">dump</span>(full_pipe, <span class="str">'pipeline.joblib'</span>)
+<span class="cm"># Now just load and call predict() — no need to scale manually!</span>
+
+<span class="cm"># ── Use in deployment ────────────────────────</span>
+pipe = joblib.<span class="fn">load</span>(<span class="str">'pipeline.joblib'</span>)
+new_data = pd.<span class="fn">DataFrame</span>({...})    <span class="cm"># raw input data</span>
+prediction = pipe.<span class="fn">predict</span>(new_data) <span class="cm"># preprocessing applied automatically</span></pre>
+  </section>
+
+  <!-- ══════════════ 20. WORKFLOW ══════════════ -->
+  <section class="section" id="workflow">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(94,155,255,0.15);color:var(--accent)">20</div>
+      <div>
+        <div class="section-title">Complete ML Workflow</div>
+        <div class="section-sub">The end-to-end process for every project</div>
+      </div>
+    </div>
+    <ol class="steps">
+      <li><strong>Define the problem</strong> — What are you predicting? Classification or Regression? What metric matters?</li>
+      <li><strong>Collect data</strong> — CSV, database, API, scraping. More quality data usually beats better algorithms.</li>
+      <li><strong>EDA</strong> — Distribution, correlations, outliers, class balance. Understand before you model.</li>
+      <li><strong>Preprocessing</strong> — Handle missing values, encode categoricals, scale numeric features.</li>
+      <li><strong>Feature Engineering</strong> — Create new useful features, remove irrelevant ones.</li>
+      <li><strong>Train/Test Split</strong> — Stratified 80/20 or 70/30. Hold out test set — don't touch it until final eval.</li>
+      <li><strong>Baseline model</strong> — Start simple (LogisticRegression, DummyClassifier). Know the floor to beat.</li>
+      <li><strong>Train and evaluate</strong> — Use cross-validation. Compare multiple algorithms.</li>
+      <li><strong>Tune hyperparameters</strong> — RandomizedSearchCV first, then GridSearchCV to refine.</li>
+      <li><strong>Final evaluation</strong> — Only now use the test set. Report metrics honestly.</li>
+      <li><strong>Save model</strong> — Save the full pipeline with joblib.</li>
+      <li><strong>Deploy</strong> — Flask/FastAPI REST API, or Streamlit app for demos.</li>
+    </ol>
+
+    <div class="card" style="margin-top:24px">
+      <h3>🚀 Starter Projects by Level</h3>
+      <div class="grid-3" style="margin-top:12px">
+        <div>
+          <div style="color:var(--accent3);font-weight:600;font-size:12px;margin-bottom:8px">BEGINNER</div>
+          <ul style="padding-left:16px;font-size:13px">
+            <li>Iris Classification</li>
+            <li>Titanic Survival</li>
+            <li>House Price Prediction</li>
+            <li>Diabetes Prediction</li>
+          </ul>
+        </div>
+        <div>
+          <div style="color:var(--accent4);font-weight:600;font-size:12px;margin-bottom:8px">INTERMEDIATE</div>
+          <ul style="padding-left:16px;font-size:13px">
+            <li>Spam Email Detection</li>
+            <li>Customer Churn</li>
+            <li>Credit Card Fraud</li>
+            <li>Movie Recommendation</li>
+          </ul>
+        </div>
+        <div>
+          <div style="color:var(--accent5);font-weight:600;font-size:12px;margin-bottom:8px">ADVANCED</div>
+          <ul style="padding-left:16px;font-size:13px">
+            <li>Face Recognition</li>
+            <li>NLP Sentiment Analysis</li>
+            <li>Time Series Forecasting</li>
+            <li>End-to-End Deployment</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('.section');
+  const links = document.querySelectorAll('.nav-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
